@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -25,17 +26,17 @@ func Connect(opts *ConnectParams) (*tls.Conn, *bufio.ReadWriter) {
 
 func SendMessage(c *tls.Conn, rw *bufio.ReadWriter, cmd string) {
 	fmt.Fprint(rw.Writer, cmd)
-	rw.Writer.Flush()
+	rw.Flush()
 }
 
-func ServerMessages(rw *bufio.ReadWriter) {
+func OutputServerMessages(rw *bufio.ReadWriter, writer io.Writer) {
 	for {
-		message, err := rw.Reader.ReadString('\n')
+		message, err := rw.ReadBytes('\n')
 		if err != nil {
 			fmt.Println("Error reading from server:", err)
 			return
 		}
-		fmt.Print(message)
+		writer.Write(message)
 
 	}
 }
@@ -46,7 +47,7 @@ func TestConnection(c *tls.Conn, rw *bufio.ReadWriter) {
 	for {
 		<-ticker.C
 		fmt.Fprintf(rw.Writer, "PING :keepalive\r\n")
-		rw.Writer.Flush()
+		rw.Flush()
 		fmt.Println("Sent PING message to keep the connection alive.")
 	}
 }

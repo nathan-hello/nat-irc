@@ -12,7 +12,7 @@ func main() {
 	conn, rw := irc.Connect(&irc.ConnectParams{Server: "irc.reluekiss.com", Port: "6697"})
 	defer conn.Close()
 	// go irc.TestConnection(conn, rw)
-	go irc.ServerMessages(rw)
+	go irc.OutputServerMessages(rw, os.Stdout)
 
 	for {
 		stdin := bufio.NewReader(os.Stdin)
